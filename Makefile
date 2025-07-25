@@ -7,7 +7,7 @@ COMPOSE_COMMAND_OPTIONS ?= -d --build
 ADDITIONAL_COMPOSE_FILES ?= 
 COMPOSE_FILES_OPTIONS = $(foreach cf,$(STANDARD_COMPOSE_FILES) $(ADDITIONAL_COMPOSE_FILES), -f $(cf))
 
-.PHONY: init up up-rendered down clean-minio clean-all
+.PHONY: init up up-rendered down clean-minio clean-all clean-tasks
 
 # Parameters: \
 - ENV_FILE: path of env file containing configuration properties (Default: .env)
@@ -61,3 +61,7 @@ clean-minio:
 clean-all: down clean-minio
 	sudo rm -rf kafka/data/broker-0 solr/data/ postgres/data/ atlas/data/ atlas/logs/ trino/docker/cdc/data superset/data
 	sudo rm -f hive/.hive_initialized
+
+
+clean-tasks:
+	./utils/clean_task_containers.sh
