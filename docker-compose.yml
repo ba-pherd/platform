@@ -74,15 +74,17 @@ services:
 
 # ----------------------------- TEST TASK -----------------------------
   test-task:
-    image: prin-task:latest
+    image: ghcr.io/ba-pherd/platform/task-base:main
     depends_on:
       trino:
         condition: service_healthy
     environment:
-      - TRINO_USER=trino
+      - TRINO_USER=researcher_user1
+      - TRINO_GROUP=test-group1
       - TRINO_ENDPOINT=trino:8080
       - TRINO_CATALOG=hive
       - TRINO_SCHEMA=default
+      - TASK_SCOPE=inference
       - TASK_APIS_BASE_URL=http://task-apis
     entrypoint: ["sleep", "inf"]
 
