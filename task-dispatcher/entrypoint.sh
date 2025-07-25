@@ -10,6 +10,7 @@ THIS_CONTAINER_NETWORK="$(curl -s --unix-socket /var/run/docker.sock -X GET \
     "http://localhost/containers/$THIS_CONTAINER_ID/json" | \
     jq -r '.NetworkSettings.Networks | keys | .[0]')"
 
+
 function pull_latest_task_image {
     log_with_date "Pulling latest task image..."
     curl -s --unix-socket /var/run/docker.sock \
@@ -18,16 +19,33 @@ function pull_latest_task_image {
         "http://localhost/images/create?fromImage=$TASK_DOCKER_IMAGE"
 }
 
+
+function get_container_cmd {
+    local taskEntrypoint="$1"
+    if [[ $taskEntrypoint == '[]' ]]
+    then
+        curl -s --unix-socket /var/run/docker.sock \
+            -H "X-Registry-Auth: $(cat /run/secrets/docker_registry_token)" \
+            -X GET \
+            "http://localhost/images/$TASK_DOCKER_IMAGE/json" | jq -jc '.Config.Cmd'
+    else
+        printf "$taskEntrypoint"
+    fi
+}
+
+
 function log_with_date {
     local msg="$1"
     echo "$(date -u +"%Y-%m-%dT%H:%M:%S") - $msg"
 }
+
 
 function start_container {
     local msg="$1"
     local trinoUser="$(echo "$msg" | jq -r '.user')"
     local trinoGroup="$(echo "$msg" | jq -r '.group')"
     local taskEntrypoint="$(echo "$msg" | jq -r '.params.entrypoint')"
+    local containerCmd="$(get_container_cmd "$taskEntrypoint")"
     local scope="$(echo "$msg" | jq -r '.scope')"
 
     pull_latest_task_image
@@ -37,7 +55,7 @@ function start_container {
     local spawnedContainerConfig="$(cat <<JSON
 {
     "Image": "$TASK_DOCKER_IMAGE",
-    "Cmd": $taskEntrypoint,
+    "Cmd": $containerCmd,
     "Labels": {
         "prin.task.toRemove": "true"
     },

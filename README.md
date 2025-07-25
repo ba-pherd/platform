@@ -32,7 +32,21 @@ RANGER_PORT=6080
 ATLAS_PORT=21000
 ```
 
-Add the file `task-dispatcher/docker-registry-token.txt` containing the auth token (with no new line) of the Docker registry hosting the `task-base` image. The auth token for the registry can be found in `~/.docker/config.json`.
+Add the file `task-dispatcher/docker-registry-token.txt` containing the registry token (with no new line) of the Docker registry hosting the task image. The auth token for the registry can be found in `~/.docker/config.json`. To verify that `task-dispatcher/docker-registry-token.txt` is correct, run:
+
+```bash
+cat task-dispatcher/docker-registry-token.txt | base64 -d
+```
+
+And it should return a JSON like:
+
+```json
+{ 
+    "username": "your-user", 
+    "password": "the-auth-token-found-in~/.docker/config.json",
+    "serveraddress": "ghcr.io"
+}
+```
 
 **Note:** if you want to change a credential, search (and replace) it in the entire repo because, for example, the `HIVE_METASTORE_DATABASE_PASSWORD` is created in the `postgres/init/hive-metastore-init.sql` script. 
 

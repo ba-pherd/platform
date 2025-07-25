@@ -26,7 +26,7 @@ def trigger_task():
 
     task_entrypoint = request.form.get('entrypoint', '').strip()
     validate_entrypoint(task_entrypoint)
-    task_entrypoint_param = ['python', 'main.py'] if task_entrypoint == '' \
+    task_entrypoint_param = [] if task_entrypoint == '' \
         else json.loads(task_entrypoint)
 
     current_app.logger.info(f'Sending notification for task {task_scope}...')

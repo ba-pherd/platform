@@ -70,7 +70,7 @@ services:
       - docker_registry_token
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka-broker-0:9092
-      - TASK_DOCKER_IMAGE=ghcr.io/ba-pherd/platform/task-base:main
+      - TASK_DOCKER_IMAGE=ghcr.io/ba-pherd/graph_mirna_ba-pherd/task:main
 
 # ----------------------------- TEST TASK -----------------------------
   test-task:
