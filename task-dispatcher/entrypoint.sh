@@ -45,10 +45,10 @@ function start_container {
     local trinoUser="$(echo "$msg" | jq -r '.user')"
     local trinoGroup="$(echo "$msg" | jq -r '.group')"
     local taskEntrypoint="$(echo "$msg" | jq -r '.params.entrypoint')"
-    local containerCmd="$(get_container_cmd "$taskEntrypoint")"
     local scope="$(echo "$msg" | jq -r '.scope')"
 
     pull_latest_task_image
+    local containerCmd="$(get_container_cmd "$taskEntrypoint")"
 
     log_with_date "Task started by user:group $trinoUser:$trinoGroup"
 
