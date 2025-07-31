@@ -51,8 +51,6 @@ def save_model():
     model_timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
     model_file = next(request.files.values())
-
-    print('model_file content: ' + model_file.stream.read().decode())
     model_file.stream.seek(0)
 
     current_app.logger.info(f'Saving model on S3...')

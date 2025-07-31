@@ -24,13 +24,16 @@ init:
 	test -e trino/docker/server/rootCA.crt || { echo "rootCA.crt file does not exist. First create it with \`cd trino && make create-crt\`" ; exit 1; }
 	test -d trino/docker/server/trino-anonymization-udfs-1.0 || { echo "trino-anonymization-udfs-1.0 directory does not exist. First create it with \`cd trino && make create-udf-package\`" ; exit 1; }
 
+	# multi-platform build support
+	docker run --privileged --rm tonistiigi/binfmt --install all
+
 # Parameters: \
 - ENV_FILE: path of env file containing configuration properties (Default: .env)\
 - COMPOSE_PROFILES: compose profile to activate (Default: *) \
 - ADDITIONAL_COMPOSE_FILES: (optional) path to additional compose files \
 - SERVICES: (optional) services for which the docker compose action must be applied \
 - COMPOSE_COMMAND_OPTIONS: options for the compose subcommand (e.g. "-d --build" for `up`)
-up-rendered:
+up-rendered: init
 	set -a && \
 	source ${ENV_FILE} && \
 	set +a && \
