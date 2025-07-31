@@ -13,7 +13,7 @@ THIS_CONTAINER_NETWORK="$(curl -s --unix-socket /var/run/docker.sock -X GET \
 
 function pull_latest_task_image {
     log_with_date "Pulling latest task image..."
-    curl -s --unix-socket /var/run/docker.sock \
+    curl -S -s -o /dev/null --unix-socket /var/run/docker.sock \
         -H "X-Registry-Auth: $(cat /run/secrets/docker_registry_token)" \
         -X POST \
         "http://localhost/images/create?fromImage=$TASK_DOCKER_IMAGE"
@@ -94,8 +94,6 @@ JSON
         "http://localhost/containers/$spawnedContainerId/start"
     log_with_date "Task container started, remove it with \`docker container rm $spawnedContainerId\`"
 }
-
-docker_registry_login
 
 /opt/kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server $KAFKA_BOOTSTRAP_SERVER \
