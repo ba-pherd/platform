@@ -598,25 +598,11 @@ function create_policies {
                             \"isAllowed\": true
                         }
                     ],
-                    \"groups\": [
-                        \"test-group1\"
+                    \"users\": [
+                        \"{USER}\"
                     ],
                     \"rowFilterInfo\": {
-                        \"filterExpr\":\"owner_id = 'test-group1'\"
-                    }
-                },
-                {
-                    \"accesses\": [
-                        {
-                            \"type\": \"select\",
-                            \"isAllowed\": true
-                        }
-                    ],
-                    \"groups\": [
-                        \"test-group2\"
-                    ],
-                    \"rowFilterInfo\": {
-                        \"filterExpr\":\"owner_id = \'test-group2\'\"
+                        \"filterExpr\": \"\${{GET_UG_NAMES()}} = owner_id\"
                     }
                 }
             ],
