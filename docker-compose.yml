@@ -299,7 +299,6 @@ services:
   ranger-tagsync:
     build:
       context: ranger/tagsync/docker
-      target: ranger-tagsync
       args:
         TAGSYNC_VERSION: ${RANGER_VERSION}
     image: ranger-tagsync
