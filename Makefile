@@ -19,13 +19,14 @@ init:
 
 	# echo "Building Docker image for task (inference/training)"
 	# docker build --tag prin-task:latest --target example-prod ./task-base
+	test -e task-dispatcher/docker-registry-token.txt || { echo "task-dispatcher/docker-registry-token.txt file does not exist. It must contain the Docker registry credential" ; exit 1; }
 
 	# trino
 	test -e trino/docker/server/rootCA.crt || { echo "rootCA.crt file does not exist. First create it with \`cd trino && make create-crt\`" ; exit 1; }
 	test -d trino/docker/server/trino-anonymization-udfs-1.0 || { echo "trino-anonymization-udfs-1.0 directory does not exist. First create it with \`cd trino && make create-udf-package\`" ; exit 1; }
 
 	# multi-platform build support
-	docker run --privileged --rm tonistiigi/binfmt --install all
+	# docker run --privileged --rm tonistiigi/binfmt --install all
 
 # Parameters: \
 - ENV_FILE: path of env file containing configuration properties (Default: .env)\
