@@ -3,9 +3,9 @@ from typing import Generator, Any
 from flask import (
     Blueprint, current_app, render_template, jsonify
 )
+from webapp.kafka import KafkaSingleton
 
 from .middlewares.authenticated import authenticated
-from .. import _kafka_consumer
 
 bp = Blueprint('task-results', __name__, url_prefix='/task-results')
 
@@ -24,11 +24,13 @@ bp = Blueprint('task-results', __name__, url_prefix='/task-results')
 
 
 def poll_kafka_records() -> Generator[Any, None, None]:
+    kafka_instance = KafkaSingleton()
+    kafka_consumer = kafka_instance._kafka_consumer
     # Changed from https://github.com/dpkp/kafka-python/blob/e4e6fcf353184af36226397d365cce1ee88b4a3a/kafka/consumer/group.py#L1160C9-L1175C29
-    record_map = _kafka_consumer.poll(timeout_ms=10000, update_offsets=False)
+    record_map = kafka_consumer.poll(timeout_ms=3000, update_offsets=False)
     for tp, records in iter(record_map.items()):
         for record in records:
-            if not _kafka_consumer._subscription.is_fetchable(tp):
+            if not kafka_consumer._subscription.is_fetchable(tp):
                 current_app.logger.debug("Not returning fetched records for partition %s"
                             " since it is no longer fetchable", tp)
                 break

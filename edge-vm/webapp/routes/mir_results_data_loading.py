@@ -8,12 +8,13 @@ from flask import (
 import pandas as pd
 from werkzeug.utils import secure_filename
 
+from webapp.kafka import KafkaSingleton
+
 from .middlewares.authenticated import authenticated
 from ..category_flash import flash_action_success
 from ..session_wrapper import session_wrapper
 from .model.MiRRecord import MiRRecord
 from .model.utils import from_dict
-from .. import _kafka_producer
 from .utils.validation import validate_scope
 
 bp = Blueprint('mir-results-data-loading', __name__, url_prefix='/data-loading/mir-results')
@@ -33,16 +34,19 @@ def load_from_excel():
 
     current_app.logger.info(f'File {secure_filename(data_file.filename)} is being processed for scope {task_scope}...')
 
+    kafka_instance = KafkaSingleton()
+    kafka_producer = kafka_instance._kafka_producer
+
     mir_records = cast_excel_to_objs_list(data_file.stream)
     for i, mir_record in enumerate(mir_records):
         current_app.logger.info(f'Mir record {i}: {mir_record}')
         owner_id = session_wrapper.group
-        _kafka_producer.send(
+        kafka_producer.send(
             topic='devprin.mir-results', 
             key={ 'owner_id': owner_id },
             value=dataclasses.asdict(mir_record) | { 'scope': task_scope }
         )
-    _kafka_producer.flush()
+    kafka_producer.flush()
 
     current_app.logger.info(f'File {secure_filename(data_file.filename)} has been processed')
 

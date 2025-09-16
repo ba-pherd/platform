@@ -4,11 +4,12 @@ from flask import (
     Blueprint, render_template, current_app, request, redirect
 )
 
+from webapp.kafka import KafkaSingleton
+
 from .middlewares.authenticated import authenticated
 from ..session_wrapper import session_wrapper
 from .utils.validation import validate_scope, validate_entrypoint
 from ..category_flash import flash_action_success
-from .. import _kafka_producer
 
 bp = Blueprint('task-runner', __name__, url_prefix='/tasks')
 
@@ -30,7 +31,9 @@ def trigger_task():
         else json.loads(task_entrypoint)
 
     current_app.logger.info(f'Sending notification for task {task_scope}...')
-    _kafka_producer.send(
+    kafka_instance = KafkaSingleton()
+    kafka_producer = kafka_instance._kafka_producer
+    kafka_producer.send(
         topic="devprin.task.trigger", 
         key={ 'group_name': session_wrapper.group },
         value={ 
@@ -43,7 +46,7 @@ def trigger_task():
             }
         }
     )
-    _kafka_producer.flush()
+    kafka_producer.flush()
 
     current_app.logger.info(f'Notification for task {task_scope} sent')
     

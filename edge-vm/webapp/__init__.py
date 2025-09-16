@@ -1,12 +1,11 @@
 import os
-import json
-import socket
 import logging
 
 from flask import Flask, render_template, current_app
 from flask.logging import default_handler
 from werkzeug.exceptions import NotFound
-from kafka import KafkaProducer, KafkaConsumer, TopicPartition
+
+from webapp.kafka import KafkaSingleton
 
 from .category_flash import flash_error
 from .logging_formatter import AuthenticatedRequestFormatter
@@ -15,8 +14,6 @@ KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', '')
 if KAFKA_BOOTSTRAP_SERVERS == '':
     raise Exception('Env variable KAFKA_BOOTSTRAP_SERVERS is empty')
 
-_kafka_producer = None
-_kafka_consumer = None
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -25,9 +22,7 @@ def create_app(test_config=None):
     app.logger.info('Loading configurations...')
     if test_config is None:
         app.config.from_prefixed_env()
-        app.config.from_mapping({
-            'KAFKA_BOOTSTRAP_SERVERS': KAFKA_BOOTSTRAP_SERVERS
-        })
+        app.config.from_mapping({})
     else:
         app.config.from_mapping(test_config)
 
@@ -35,9 +30,10 @@ def create_app(test_config=None):
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    app.logger.info('Initializing Kafka Clients...')
-    configure_kafka_clients()
-    app.logger.info('Kafka Clients initialized')
+    app.logger.info('Configuring Kafka...')
+    kafka_instance = KafkaSingleton()
+    kafka_instance.init_server(KAFKA_BOOTSTRAP_SERVERS)
+    app.logger.info('Kafka Configured')
 
     app.logger.info('Configuring log format...')
     configure_logging()
@@ -71,32 +67,6 @@ def error_handler(err):
         flash_error(err)
 
     return render_template('index.html')
-
-
-def configure_kafka_clients():
-    global _kafka_producer, _kafka_consumer
-    _kafka_producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        client_id=f'edge-vm-{socket.gethostname()}',
-        value_serializer=lambda m: json.dumps(m).encode(),
-        key_serializer=lambda m: json.dumps(m).encode()
-    )
-
-    # auto_offset_reset is set to earliest because the task result consumer
-    # always reads from the beginning. Besides, it should not commit the message
-    # offset for the same reason
-    _kafka_consumer = KafkaConsumer(
-        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        client_id=f'edge-vm-{socket.gethostname()}',
-        value_deserializer=lambda m: json.loads(m.decode()),
-        auto_offset_reset='earliest',
-        enable_auto_commit=False
-    )
-    TASK_RESULTS_TOPIC_NAME='devprin.task.result'
-    _kafka_consumer.subscribe(topics=[TASK_RESULTS_TOPIC_NAME])
-    # tps = [TopicPartition(TASK_RESULTS_TOPIC_NAME, p) 
-    #        for p in _kafka_consumer.partitions_for_topic(TASK_RESULTS_TOPIC_NAME)]
-    # _kafka_consumer.assign(tps)
 
 
 def configure_logging():
