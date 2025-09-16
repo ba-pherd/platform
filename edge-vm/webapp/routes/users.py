@@ -1,11 +1,8 @@
 from flask import (
     Blueprint, redirect, current_app, request
 )
-from kafka import KafkaProducer, KafkaConsumer, TopicPartition
-import json
-import socket
 
-from webapp.kafka import KafkaSingleton
+from webapp.kafka import Kafka
 
 from .middlewares.authenticated import authenticated
 from ..session_wrapper import session_wrapper
@@ -24,11 +21,10 @@ def login():
 
     current_app.logger.info(f'Logged in as {group}:{user}')
 
-    kafka_topic = f'devprin.{group}.task.result'
-    current_app.logger.info(f'Changing kafka consumer: must subscribe to topic {kafka_topic}')
-    kafka_instance = KafkaSingleton()
-    kafka_instance.init_consumer(kafka_topic)
-    current_app.logger.info('Kafka consumer changed')
+    current_app.logger.info(f'Creating Kafka client for new group')
+    kafka_results_topic = f'devprin.{group}.task.result'
+    session_wrapper.kafka_instance = Kafka(current_app.config['KAFKA_BOOTSTRAP_SERVERS'], kafka_results_topic)
+    current_app.logger.info('Kafka client created')
 
     flash_action_success('Login avvenuto con successo')
 

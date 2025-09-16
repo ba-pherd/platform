@@ -5,8 +5,6 @@ from flask import Flask, render_template, current_app
 from flask.logging import default_handler
 from werkzeug.exceptions import NotFound
 
-from webapp.kafka import KafkaSingleton
-
 from .category_flash import flash_error
 from .logging_formatter import AuthenticatedRequestFormatter
 
@@ -22,18 +20,15 @@ def create_app(test_config=None):
     app.logger.info('Loading configurations...')
     if test_config is None:
         app.config.from_prefixed_env()
-        app.config.from_mapping({})
+        app.config.from_mapping({
+            'KAFKA_BOOTSTRAP_SERVERS': KAFKA_BOOTSTRAP_SERVERS
+        })
     else:
         app.config.from_mapping(test_config)
 
     app.logger.info('Configurations loaded')
 
     os.makedirs(app.instance_path, exist_ok=True)
-
-    app.logger.info('Configuring Kafka...')
-    kafka_instance = KafkaSingleton()
-    kafka_instance.init_server(KAFKA_BOOTSTRAP_SERVERS)
-    app.logger.info('Kafka Configured')
 
     app.logger.info('Configuring log format...')
     configure_logging()

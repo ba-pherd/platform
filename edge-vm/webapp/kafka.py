@@ -3,24 +3,8 @@ import socket
 from kafka import KafkaConsumer, KafkaProducer
 
 
-class KafkaSingleton:
-    _instance = None
-    
-    _consumer_topic: str = None
-
-    
-    def _validate_server(self):
-        if self._bootstrap_server == None:
-            raise ValueError('init_server has not been called')
-
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(KafkaSingleton, cls).__new__(cls)
-        return cls._instance
-    
-
-    def init_server(self, bootstrap_server: str):
+class Kafka:
+    def __init__(self, bootstrap_server: str, results_topic: str):
         if bootstrap_server.strip() == '':
             raise ValueError('Bootstrap server cannot be empty')
         self._bootstrap_server = bootstrap_server
@@ -33,10 +17,6 @@ class KafkaSingleton:
             key_serializer=lambda m: json.dumps(m).encode()
         )
 
-    
-    def init_consumer(self, topic: str):
-        self._validate_server()
-
         # auto_offset_reset is set to earliest because the task result consumer
         # always reads from the beginning. Besides, it should not commit the message
         # offset for the same reason
@@ -47,8 +27,7 @@ class KafkaSingleton:
             auto_offset_reset='earliest',
             enable_auto_commit=False
         )
-        self.kafka_results_consumer.subscribe(topics=[topic])
+        self.kafka_results_consumer.subscribe(topics=[results_topic])
         # tps = [TopicPartition(topic, p) 
-        #        for p in self.kafka_results_consumer.partitions_for_topic(topic)]
+        #        for p in self.kafka_results_consumer.partitions_for_topic(results_topic)]
         # self.kafka_results_consumer.assign(tps)
-        
