@@ -21,7 +21,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 ENV KAFKA_BOOTSTRAP_SERVERS=
-ENV KAFKA_TOPIC=devprin.task.result
 
 ENV S3_ENDPOINT=
 ENV S3_BUCKET=prin

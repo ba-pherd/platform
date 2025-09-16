@@ -35,7 +35,7 @@ def load_from_excel():
     current_app.logger.info(f'File {secure_filename(data_file.filename)} is being processed for scope {task_scope}...')
 
     kafka_instance = KafkaSingleton()
-    kafka_producer = kafka_instance._kafka_producer
+    kafka_producer = kafka_instance.kafka_producer
 
     mir_records = cast_excel_to_objs_list(data_file.stream)
     for i, mir_record in enumerate(mir_records):

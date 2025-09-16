@@ -17,10 +17,6 @@ KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', '')
 if KAFKA_BOOTSTRAP_SERVERS == '':
     raise Exception('Env variable KAFKA_BOOTSTRAP_SERVERS is empty')
 
-KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', '')
-if KAFKA_TOPIC == '':
-    raise Exception('Env variable KAFKA_TOPIC is empty')
-
 S3_ENDPOINT = os.getenv('S3_ENDPOINT', '')
 if S3_ENDPOINT == '':
     raise Exception('Env variable S3_ENDPOINT is empty')
@@ -171,7 +167,7 @@ def send_kafka_notification(
     '''Send Kafka notification with the pre-signed url of the saved file
     '''
     producer.send(
-        topic=KAFKA_TOPIC,
+        topic=f'devprin.{group_name}.task.result',
         key={ 'group_name': group_name },
         value={
             'taskType': task_type,

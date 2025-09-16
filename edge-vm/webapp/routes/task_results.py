@@ -25,7 +25,7 @@ bp = Blueprint('task-results', __name__, url_prefix='/task-results')
 
 def poll_kafka_records() -> Generator[Any, None, None]:
     kafka_instance = KafkaSingleton()
-    kafka_consumer = kafka_instance._kafka_consumer
+    kafka_consumer = kafka_instance.kafka_results_consumer
     # Changed from https://github.com/dpkp/kafka-python/blob/e4e6fcf353184af36226397d365cce1ee88b4a3a/kafka/consumer/group.py#L1160C9-L1175C29
     record_map = kafka_consumer.poll(timeout_ms=3000, update_offsets=False)
     for tp, records in iter(record_map.items()):

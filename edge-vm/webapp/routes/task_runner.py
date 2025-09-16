@@ -32,7 +32,7 @@ def trigger_task():
 
     current_app.logger.info(f'Sending notification for task {task_scope}...')
     kafka_instance = KafkaSingleton()
-    kafka_producer = kafka_instance._kafka_producer
+    kafka_producer = kafka_instance.kafka_producer
     kafka_producer.send(
         topic="devprin.task.trigger", 
         key={ 'group_name': session_wrapper.group },
