@@ -7,6 +7,7 @@ from werkzeug.exceptions import NotFound
 
 from .category_flash import flash_error
 from .logging_formatter import AuthenticatedRequestFormatter
+from .kafka import kafka
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', '')
 if KAFKA_BOOTSTRAP_SERVERS == '':
@@ -20,9 +21,7 @@ def create_app(test_config=None):
     app.logger.info('Loading configurations...')
     if test_config is None:
         app.config.from_prefixed_env()
-        app.config.from_mapping({
-            'KAFKA_BOOTSTRAP_SERVERS': KAFKA_BOOTSTRAP_SERVERS
-        })
+        app.config.from_mapping({})
     else:
         app.config.from_mapping(test_config)
 
@@ -33,6 +32,10 @@ def create_app(test_config=None):
     app.logger.info('Configuring log format...')
     configure_logging()
     app.logger.info('Log format configured')
+
+    app.logger.info('Configuring Kafka servers...')
+    kafka.init_kafka_bootstrap_server(KAFKA_BOOTSTRAP_SERVERS)
+    app.logger.info('Kafka servers configured')
 
     from .routes import patients_data_loading, mir_results_data_loading, task_runner, users, task_results
     app.register_blueprint(patients_data_loading.bp)

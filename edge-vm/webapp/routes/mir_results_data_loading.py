@@ -14,6 +14,7 @@ from ..session_wrapper import session_wrapper
 from .model.MiRRecord import MiRRecord
 from .model.utils import from_dict
 from .utils.validation import validate_scope
+from webapp.kafka import kafka
 
 bp = Blueprint('mir-results-data-loading', __name__, url_prefix='/data-loading/mir-results')
 
@@ -32,8 +33,7 @@ def load_from_excel():
 
     current_app.logger.info(f'File {secure_filename(data_file.filename)} is being processed for scope {task_scope}...')
 
-    kafka_instance = session_wrapper.kafka_instance
-    kafka_producer = kafka_instance.kafka_producer
+    kafka_producer = kafka.producer
 
     mir_records = cast_excel_to_objs_list(data_file.stream)
     for i, mir_record in enumerate(mir_records):

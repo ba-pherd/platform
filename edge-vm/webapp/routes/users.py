@@ -2,7 +2,7 @@ from flask import (
     Blueprint, redirect, current_app, request
 )
 
-from webapp.kafka import Kafka
+from webapp.kafka import kafka
 
 from .middlewares.authenticated import authenticated
 from ..session_wrapper import session_wrapper
@@ -21,10 +21,10 @@ def login():
 
     current_app.logger.info(f'Logged in as {group}:{user}')
 
-    current_app.logger.info(f'Creating Kafka client for new group')
+    current_app.logger.info(f'Initializing Kafka client for new group')
     kafka_results_topic = f'devprin.{group}.task.result'
-    session_wrapper.kafka_instance = Kafka(current_app.config['KAFKA_BOOTSTRAP_SERVERS'], kafka_results_topic)
-    current_app.logger.info('Kafka client created')
+    kafka.init_kafka_pubsub(kafka_results_topic)
+    current_app.logger.info('Kafka client initialized')
 
     flash_action_success('Login avvenuto con successo')
 

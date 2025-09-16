@@ -2,7 +2,6 @@ import functools
 
 from flask import session, has_request_context
 
-from webapp.kafka import Kafka
 
 def request_context_validated(fn):
     @functools.wraps(fn)
@@ -32,16 +31,6 @@ class SessionWrapper:
     @request_context_validated
     def group(self, value: str):
         session['group'] = value
-
-    @property
-    @request_context_validated
-    def kafka_instance(self) -> Kafka:
-        return session.get('kafka_instance', None)
-
-    @kafka_instance.setter
-    @request_context_validated
-    def kafka_instance(self, value: Kafka):
-        session['kafka_instance'] = value
 
     def clear(self):
         session.clear()

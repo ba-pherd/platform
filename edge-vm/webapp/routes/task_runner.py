@@ -4,6 +4,8 @@ from flask import (
     Blueprint, render_template, current_app, request, redirect
 )
 
+from webapp import kafka
+
 from .middlewares.authenticated import authenticated
 from ..session_wrapper import session_wrapper
 from .utils.validation import validate_scope, validate_entrypoint
@@ -29,8 +31,7 @@ def trigger_task():
         else json.loads(task_entrypoint)
 
     current_app.logger.info(f'Sending notification for task {task_scope}...')
-    kafka_instance = session_wrapper.kafka_instance
-    kafka_producer = kafka_instance.kafka_producer
+    kafka_producer = kafka.producer
     kafka_producer.send(
         topic="devprin.task.trigger", 
         key={ 'group_name': session_wrapper.group },
