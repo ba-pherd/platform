@@ -602,7 +602,7 @@ function create_policies {
                         \"{USER}\"
                     ],
                     \"rowFilterInfo\": {
-                        \"filterExpr\": \"\${{GET_UG_NAMES()}} = owner_id\"
+                        \"filterExpr\": \"'\${{GET_UG_NAMES()}}' = owner_id\"
                     }
                 }
             ],
