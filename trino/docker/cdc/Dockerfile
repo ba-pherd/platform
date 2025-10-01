@@ -8,7 +8,7 @@ RUN <<EOF
     apt update
 
     # Trino CLI
-    curl --output trino https://repo1.maven.org/maven2/io/trino/trino-cli/${TRINO_VERSION}/trino-cli-${TRINO_VERSION}-executable.jar
+    wget -O trino https://github.com/trinodb/trino/releases/download/${TRINO_VERSION}/trino-cli-${TRINO_VERSION}
     chmod +x trino
     apt install -y less
 EOF
