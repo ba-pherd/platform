@@ -601,6 +601,14 @@ function create_policies {
                     \"users\": [
                         \"{USER}\"
                     ],
+                    \"conditions\": [
+                        {
+                            \"type\": \"_expression\",
+                            \"values\": [
+                                \"USER._name != 'trino'\"
+                            ]
+                        }
+                    ],
                     \"rowFilterInfo\": {
                         \"filterExpr\": \"'\${{GET_UG_NAMES()}}' = owner_id\"
                     }
