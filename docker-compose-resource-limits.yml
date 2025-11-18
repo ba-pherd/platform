@@ -1,18 +1,8 @@
 services:
-  user-dashboard:
-    cpus: 0.3
-    mem_limit: 200mb
-
-# ----------------------------- KAFKA -----------------------------
-
-  kafka-broker-0:
-    cpus: 1
-    mem_limit: 1gb
-
-  kafka-broker-1:
-    cpus: 1
-    mem_limit: 1gb
-
-  kafka-init:
-    cpus: 0.5
-    mem_limit: 500mb
+# ----------------------------- TRINO -----------------------------
+  trino:
+    logging:
+      driver: json-file
+      options:
+        max-size: 1g
+        max-file: 3

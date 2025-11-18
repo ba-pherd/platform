@@ -2,15 +2,14 @@ SHELL = /bin/bash
 
 ENV_FILE ?= .env
 COMPOSE_PROFILES ?= all
-STANDARD_COMPOSE_FILES = docker-compose.yml docker-compose-profiles.yml
+STANDARD_COMPOSE_FILES = docker-compose.yml docker-compose-profiles.yml docker-compose-resource-limits.yml
 COMPOSE_COMMAND_OPTIONS ?= -d --build
 ADDITIONAL_COMPOSE_FILES ?= 
 COMPOSE_FILES_OPTIONS = $(foreach cf,$(STANDARD_COMPOSE_FILES) $(ADDITIONAL_COMPOSE_FILES), -f $(cf))
 
-.PHONY: init up up-rendered down clean-minio clean-all clean-tasks
-
 # Parameters: \
 - ENV_FILE: path of env file containing configuration properties (Default: .env)
+.PHONY: init
 init:
 	mkdir -p kafka/data/broker-0 minio/data solr/data postgres/data atlas/data atlas/logs trino/docker/cdc/data superset/data
 	chmod 777 solr/data
@@ -34,7 +33,8 @@ init:
 - ADDITIONAL_COMPOSE_FILES: (optional) path to additional compose files \
 - SERVICES: (optional) services for which the docker compose action must be applied \
 - COMPOSE_COMMAND_OPTIONS: options for the compose subcommand (e.g. "-d --build" for `up`)
-up-rendered: init
+.PHONY: render
+render: init
 	set -a && \
 	source ${ENV_FILE} && \
 	set +a && \
@@ -46,6 +46,7 @@ up-rendered: init
 - ADDITIONAL_COMPOSE_FILES: (optional) path to additional compose files \
 - SERVICES: (optional) services for which the docker compose action must be applied \
 - COMPOSE_COMMAND_OPTIONS: options for the compose subcommand (e.g. "-d --build" for `up`)
+.PHONY: up
 up: init
 	set -a && \
 	source ${ENV_FILE} && \
@@ -56,16 +57,19 @@ up: init
 
 # Parameters: \
 - SERVICES: (optional) services for which the docker compose action must be applied
+.PHONY: down
 down:
 	docker compose down -v ${SERVICES}
 
+.PHONY: clean-minio
 clean-minio:
 	sudo rm -rf minio/data
 
+.PHONY: clean-all
 clean-all: down clean-minio
 	sudo rm -rf kafka/data/broker-0 solr/data/ postgres/data/ atlas/data/ atlas/logs/ trino/docker/cdc/data superset/data
 	sudo rm -f hive/.hive_initialized
 
-
+.PHONY: clean-tasks
 clean-tasks:
 	./utils/clean_task_containers.sh
