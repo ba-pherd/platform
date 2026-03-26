@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.in,target=requirements.in \
     pip-compile requirements.in && pip-sync
 
-COPY . .
+COPY ./src .
 
 ENV FLASK_SECRET_KEY=SecretKeyForFlaskSessions
 ENV KAFKA_BOOTSTRAP_SERVERS=

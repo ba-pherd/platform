@@ -28,8 +28,6 @@ S3_BUCKET = os.getenv('S3_BUCKET', '')
 if S3_BUCKET == '':
     raise Exception('Env variable S3_BUCKET is empty')
 
-S3_PRE_SIGNED_URL_EXPIRATION_SECONDS = int(os.getenv('S3_PRE_SIGNED_URL_EXPIRATION_SECONDS'))
-
 s3_client = boto_client(
     service_name='s3', 
     use_ssl=False, 

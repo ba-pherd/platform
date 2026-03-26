@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.require_version ">= 2.0.0"
+
+MANAGER_NUM = 1
+WORKER_NUM = 2
+
+Vagrant.configure('2') do |config|
+    config.vm.box = 'cloud-image/ubuntu-24.04'
+    config.vm.define = "prin-webapp"
+
+    config.vm.network 'private_network', ip: "10.10.10.10"
+    config.vm.network 'forwarded_port', id: 'webapp', host: "8080", guest: "8080"
+    config.vm.network 'forwarded_port', id: 'ssh', host: "2000", guest: "22"
+    config.vm.hostname = "prin-webapp"
+    config.vm.disk :disk, size: '20GB', primary: true
+    config.vm.synced_folder "./webapp", "/webapp"
+
+    config.vm.provision 'docker'
+    config.vm.provision "env_variables", type: "file", source: ".env", destination: "/webapp/.env"
+    config.vm.provision "shell", inline: "docker compose -f /webapp/docker-compose.yaml up -d --build", run: "always"
+
+    # tweak vm settings to optimize for your machine:
+    config.vm.provider 'virtualbox' do |vb|
+        vb.memory = '4096'
+        vb.cpus = 4
+    end
+end

@@ -93,6 +93,5 @@ venv/
 */*/*/*.swp
 
 # custom
-to-watch/
-test-files/
 .devcontainer/
+Vagrantfile

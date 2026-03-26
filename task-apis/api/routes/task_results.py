@@ -21,6 +21,10 @@ S3_ENDPOINT = os.getenv('S3_ENDPOINT', '')
 if S3_ENDPOINT == '':
     raise Exception('Env variable S3_ENDPOINT is empty')
 
+S3_PUBLIC_ENDPOINT = os.getenv('S3_PUBLIC_ENDPOINT', '')
+if S3_PUBLIC_ENDPOINT == '':
+    raise Exception('Env variable S3_PUBLIC_ENDPOINT is empty')
+
 S3_ACCESS_KEY_ID = os.getenv('S3_ACCESS_KEY_ID', '')
 if S3_ACCESS_KEY_ID == '':
     raise Exception('Env variable S3_ACCESS_KEY_ID is empty')
@@ -154,7 +158,9 @@ def generate_pre_signed_url(s3_key: str) -> str:
         ExpiresIn=S3_PRE_SIGNED_URL_EXPIRATION_SECONDS
     )
 
-    return pre_signed_url
+    # replace the s3 endpoint (accessing only within the docker compose network)
+    # with a publically reachable endpoint
+    return pre_signed_url.replace(S3_ENDPOINT, S3_PUBLIC_ENDPOINT)
 
 
 def send_kafka_notification(
