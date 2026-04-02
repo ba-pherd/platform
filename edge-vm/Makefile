@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 
-.PHONY: create-crt create-udf-package
+.PHONY: up
 
 up:
 	test -e .env || { echo "Create the .env file as documented in the README.md" ; exit 1; }

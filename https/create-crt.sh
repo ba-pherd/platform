@@ -35,4 +35,4 @@ test -e server.pem && echo "the server.pem already exists." || create_server_pem
 # Validate server.pem
 openssl rsa -in server.pem -check -noout || { echo "the .pem file is not valid, delete it and re-run the script." ; exit 1; }
 
-echo "Certificates created successfully. Use the server.pem and the CA certificate (rootCA.crt)"
+echo "Certificates created successfully"

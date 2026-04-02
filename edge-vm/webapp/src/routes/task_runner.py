@@ -4,7 +4,7 @@ from flask import (
     Blueprint, render_template, current_app, request, redirect
 )
 
-from webapp import kafka
+from ..kafka import kafka
 
 from .middlewares.authenticated import authenticated
 from ..session_wrapper import session_wrapper

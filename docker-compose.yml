@@ -7,20 +7,57 @@ services:
     image: apache/kafka:${KAFKA_VERSION}
     working_dir: /opt/kafka/bin/
     healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --list --bootstrap-server kafka-broker-0:9092" ]
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --list --bootstrap-server kafka-broker-0:9094" ]
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 2m
     ports:
-      - '${KAFKA_BROKER_PORT}:9092'
+      - '${KAFKA_EXTERNAL_LISTENER_PORT}:9092'
     environment:
-      KAFKA_NODE_ID: 0
       KAFKA_PROCESS_ROLES: 'broker,controller'
-      # CLUSTER_ID: 'clusterid0with016bytes'
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >-
+        EXTERNAL:SASL_SSL,
+        CONTROLLER:PLAINTEXT,
+        INTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: >-
+        EXTERNAL://0.0.0.0:9092,
+        CONTROLLER://0.0.0.0:9093,
+        INTERNAL://0.0.0.0:9094
+      # https://www.confluent.io/blog/kafka-listeners-explained/
+      KAFKA_ADVERTISED_LISTENERS: >-
+        EXTERNAL://${KAFKA_EXTERNAL_ENDPOINT}:9092,
+        INTERNAL://kafka-broker-0:9094
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka-broker-0:9093'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: '4L6g3nShT-eMCtK--X86sw'
+      KAFKA_SSL_KEYSTORE_TYPE: PEM
+      KAFKA_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/server.pem
+      KAFKA_SSL_TRUSTSTORE_TYPE: PEM
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/rootCA.crt
+      KAFKA_SSL_CLIENT_AUTH: 'none'
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      # KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_LISTENER_NAME_EXTERNAL_PLAIN_SASL_JAAS_CONFIG: >-
+        org.apache.kafka.common.security.plain.PlainLoginModule required 
+        username="${KAFKA_USERNAME}" 
+        password="${KAFKA_PASSWORD}" 
+        user_${KAFKA_USERNAME}="${KAFKA_PASSWORD}";
+      # KAFKA_CONNECTIONS_MAX_IDLE_MS: 600000000000
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
     volumes:
       - ./kafka/data/broker-0:/var/lib/kafka/data
-      - ./kafka/configs:/mnt/shared/config
+      - ./https/server.pem:/etc/kafka/secrets/server.pem:ro
+      - ./https/rootCA.crt:/etc/kafka/secrets/rootCA.crt:ro
 
   kafka-init:
     image: apache/kafka:${KAFKA_VERSION}
@@ -56,7 +93,7 @@ services:
     secrets:
       - docker_registry_token
     environment:
-      - KAFKA_BOOTSTRAP_SERVER=kafka-broker-0:9092
+      - KAFKA_BOOTSTRAP_SERVER=kafka-broker-0:9094
       - TASK_DOCKER_IMAGE=ghcr.io/ba-pherd/graph_mirna_ba-pherd/task:main
 
 # ----------------------------- TEST TASK -----------------------------
@@ -90,7 +127,7 @@ services:
       minio-init:
         condition: service_completed_successfully
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker-0:9092 #,kafka-broker-1:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker-0:9094 #,kafka-broker-1:9094
       - S3_ENDPOINT=http://minio:9000
       - S3_PUBLIC_ENDPOINT=${MINIO_PUBLIC_ENDPOINT}
       - S3_BUCKET=${MINIO_BUCKET}

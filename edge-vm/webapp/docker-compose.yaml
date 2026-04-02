@@ -8,8 +8,11 @@ services:
       target: base
     ports:
       - 8080:80
+    restart: always
     # will be present in the final vm after provisioned by Vagrant using the "env_variables" provisioning source
     env_file: '.env'
+    volumes:
+      - ../../https/rootCA.crt:/usr/local/share/ca-certificates/rootCA.crt:ro
     logging:
       driver: json-file
       options:

@@ -14,7 +14,7 @@ from ..session_wrapper import session_wrapper
 from .model.MiRRecord import MiRRecord
 from .model.utils import from_dict
 from .utils.validation import validate_scope
-from webapp.kafka import kafka
+from ..kafka import kafka
 
 bp = Blueprint('mir-results-data-loading', __name__, url_prefix='/data-loading/mir-results')
 

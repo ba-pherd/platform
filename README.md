@@ -33,7 +33,11 @@ RANGER_PORT=6080
 RANGER_DEBUG_ADMIN=false
 
 KAFKA_VERSION=3.9.1
-KAFKA_BROKER_PORT=9092
+# Ip address/host of the advertised listener for external clients
+KAFKA_EXTERNAL_ENDPOINT=10.10.10.10
+KAFKA_EXTERNAL_LISTENER_PORT=9092
+KAFKA_USERNAME=kafkauser
+KAFKA_PASSWORD=kafkapassword
 
 TRINO_VERSION=478
 TRINO_PORT=8081
@@ -120,7 +124,7 @@ kafka-console-producer.sh \
     --topic devprin.test \ # specify a previously created topic
     --property parse.key=true \
     --property key.separator="|" \
-    --broker-list localhost:9092 #,kafka-broker-1:9092
+    --broker-list localhost:9094 #,kafka-broker-1:9094
 1|{"prop1":"test", "prop2": 10}
 ```
 
@@ -132,7 +136,7 @@ kafka-console-consumer.sh \
     --topic devprin.medical-records \
     # --property print.key=true \ you cannot deserialize the key because it is a byte object
     --property key.separator="-" \
-    --bootstrap-server localhost:9092 
+    --bootstrap-server localhost:9094
 ```
 
 ---

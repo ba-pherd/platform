@@ -27,7 +27,7 @@ EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=1m --retries=3 CMD ["curl", "http://localhost/health"]
 
-ENTRYPOINT ["flask", "--app", "webapp", "run", "--port", "80", "--host", "0.0.0.0"]
+ENTRYPOINT ["flask", "--app", ".", "run", "--port", "80", "--host", "0.0.0.0"]
 
 # DevContainer
 # See https://stackoverflow.com/q/68937464/5587393

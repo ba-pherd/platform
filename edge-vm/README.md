@@ -9,7 +9,9 @@ Create a `.env` file with the following content and fill the variables :
 FLASK_SECRET_KEY=SecretKeyForFlaskSessions
 
 # endpoint of the kafka broker
-KAFKA_BOOTSTRAP_SERVERS=kafka-broker-0:9092
+KAFKA_BOOTSTRAP_SERVERS=bapherd-ip-address:9092
+KAFKA_USERNAME=kafkauser
+KAFKA_PASSWORD=kafkapassword
 ```
 
 ## Procedure

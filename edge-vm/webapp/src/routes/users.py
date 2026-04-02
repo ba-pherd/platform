@@ -2,7 +2,7 @@ from flask import (
     Blueprint, redirect, current_app, request
 )
 
-from webapp.kafka import kafka
+from ..kafka import kafka
 
 from .middlewares.authenticated import authenticated
 from ..session_wrapper import session_wrapper

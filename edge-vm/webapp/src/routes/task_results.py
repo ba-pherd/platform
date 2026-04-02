@@ -3,7 +3,7 @@ from typing import Generator, Any
 from flask import (
     Blueprint, current_app, render_template, jsonify
 )
-from webapp import kafka
+from ..kafka import kafka
 
 from .middlewares.authenticated import authenticated
 
@@ -11,7 +11,7 @@ bp = Blueprint('task-results', __name__, url_prefix='/task-results')
 
 ## Test Kafka notification with:
 #
-# BROKER=kafka-broker-0:9092
+# BROKER=kafka-broker-0:9094
 # TOPIC=devprin.task.result
 # 
 # ./kafka-console-producer.sh \

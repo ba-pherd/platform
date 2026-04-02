@@ -13,6 +13,14 @@ KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', '')
 if KAFKA_BOOTSTRAP_SERVERS == '':
     raise Exception('Env variable KAFKA_BOOTSTRAP_SERVERS is empty')
 
+KAFKA_USERNAME = os.getenv('KAFKA_USERNAME', '')
+if KAFKA_USERNAME == '':
+    raise Exception('Env variable KAFKA_USERNAME is empty')
+
+KAFKA_PASSWORD = os.getenv('KAFKA_PASSWORD', '')
+if KAFKA_PASSWORD == '':
+    raise Exception('Env variable KAFKA_PASSWORD is empty')
+
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -34,7 +42,7 @@ def create_app(test_config=None):
     app.logger.info('Log format configured')
 
     app.logger.info('Configuring Kafka servers...')
-    kafka.init_kafka_bootstrap_server(KAFKA_BOOTSTRAP_SERVERS)
+    kafka.init_kafka_bootstrap_server(KAFKA_BOOTSTRAP_SERVERS, KAFKA_USERNAME, KAFKA_PASSWORD)
     app.logger.info('Kafka servers configured')
 
     from .routes import patients_data_loading, mir_results_data_loading, task_runner, users, task_results

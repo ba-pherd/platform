@@ -1,10 +1,4 @@
 services:
-# ----------------------------- FILE WATCHER -----------------------------
-  user-dashboard:
-    profiles:
-      - local-dev
-      - all
-
 # ----------------------------- KAFKA -----------------------------
   kafka-broker-0:
     profiles:

@@ -14,7 +14,7 @@ from ..category_flash import flash_action_success
 from .model.PatientRecord import PatientRecord
 from .model.utils import from_dict
 from .utils.validation import validate_scope
-from webapp import kafka
+from ..kafka import kafka
 
 bp = Blueprint('patients-data-loading', __name__, url_prefix='/data-loading/patients')
 

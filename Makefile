@@ -18,14 +18,11 @@ init:
 
 	# echo "Building Docker image for task (inference/training)"
 	# docker build --tag prin-task:latest --target example-prod ./task-base
-	test -e task-dispatcher/docker-registry-token.txt || { echo "task-dispatcher/docker-registry-token.txt file does not exist. It must contain the Docker registry credential" ; exit 1; }
+	test -e task-dispatcher/docker-registry-token.txt || { echo "task-dispatcher/docker-registry-token.txt file does not exist. It must contain the Docker registry credential as described at https://docs.docker.com/reference/api/engine/version/v1.51/#section/Authentication" ; exit 1; }
 
 	# trino
-	test -e trino/docker/server/rootCA.crt || { echo "rootCA.crt file does not exist. First create it with \`cd trino && make create-crt\`" ; exit 1; }
+	test -e trino/docker/server/rootCA.crt || { echo "rootCA.crt file does not exist. First create it with \`cd https && make create-crt\`" ; exit 1; }
 	test -d trino/docker/server/trino-anonymization-udfs-1.0 || { echo "trino-anonymization-udfs-1.0 directory does not exist. First create it with \`cd trino && make create-udf-package\`" ; exit 1; }
-
-	# multi-platform build support
-	# docker run --privileged --rm tonistiigi/binfmt --install all
 
 # Parameters: \
 - ENV_FILE: path of env file containing configuration properties (Default: .env)\
@@ -35,10 +32,7 @@ init:
 - COMPOSE_COMMAND_OPTIONS: options for the compose subcommand (e.g. "-d --build" for `up`)
 .PHONY: render
 render: init
-	set -a && \
-	source ${ENV_FILE} && \
-	set +a && \
-	COMPOSE_PROFILES=${COMPOSE_PROFILES} docker compose $(COMPOSE_FILES_OPTIONS) config $(COMPOSE_COMMAND_OPTIONS) ${SERVICES}
+	COMPOSE_PROFILES=${COMPOSE_PROFILES} docker compose $(COMPOSE_FILES_OPTIONS) --env-file $(ENV_FILE) config $(COMPOSE_COMMAND_OPTIONS) ${SERVICES}
 
 # Parameters: \
 - ENV_FILE: path of env file containing configuration properties (Default: .env)\
@@ -48,11 +42,8 @@ render: init
 - COMPOSE_COMMAND_OPTIONS: options for the compose subcommand (e.g. "-d --build" for `up`)
 .PHONY: up
 up: init
-	set -a && \
-	source ${ENV_FILE} && \
-	set +a && \
 	{ test -f hive/.hive_initialized && export SKIP_HIVE_SCHEMA_INIT=true || echo "Hive will initialize the schema..."; } && \
-	COMPOSE_PROFILES=${COMPOSE_PROFILES} docker compose $(COMPOSE_FILES_OPTIONS) up $(COMPOSE_COMMAND_OPTIONS) ${SERVICES}
+	COMPOSE_PROFILES=${COMPOSE_PROFILES} docker compose $(COMPOSE_FILES_OPTIONS) --env-file $(ENV_FILE) up $(COMPOSE_COMMAND_OPTIONS) ${SERVICES}
 	touch hive/.hive_initialized
 
 # Parameters: \
