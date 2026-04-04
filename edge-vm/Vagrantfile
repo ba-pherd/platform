@@ -3,23 +3,42 @@
 
 Vagrant.require_version ">= 2.0.0"
 
-MANAGER_NUM = 1
-WORKER_NUM = 2
+RUN_WEBAPP_COMMAND = "docker compose -f /home/vagrant/webapp/docker-compose.yaml up -d --build"
 
 Vagrant.configure('2') do |config|
     config.vm.box = 'cloud-image/ubuntu-24.04'
-    config.vm.define = "prin-webapp"
 
-    config.vm.network 'private_network', ip: "192.168.50.10"
+    config.vm.network 'private_network', ip: "192.168.56.10"
     config.vm.network 'forwarded_port', id: 'webapp', host: "8080", guest: "8080"
     config.vm.network 'forwarded_port', id: 'ssh', host: "2000", guest: "22"
     config.vm.hostname = "prin-webapp"
     config.vm.disk :disk, size: '20GB', primary: true
-    config.vm.synced_folder "./webapp", "/webapp"
+
+    config.vm.cloud_init content_type: "text/cloud-config",
+        inline: <<-EOF
+            ssh_pwauth: true
+            password: webapp-password
+            chpasswd:
+                expire: false
+
+            package_reboot_if_required: false
+            package_update: true
+            package_upgrade: true
+
+            write_files:
+            - content: |
+                @reboot #{RUN_WEBAPP_COMMAND}
+              path: /restart-cron
+              
+            runcmd:
+            - crontab /restart-cron
+        EOF
 
     config.vm.provision 'docker'
-    config.vm.provision "env_variables", type: "file", source: ".env", destination: "/webapp/.env"
-    config.vm.provision "shell", inline: "docker compose -f /webapp/docker-compose.yaml up -d --build", run: "always"
+    config.vm.provision "source_files", type: "file", source: "./webapp", destination: "/home/vagrant/webapp"
+    config.vm.provision "env_variables", type: "file", source: ".env", destination: "/home/vagrant/webapp/.env"
+    config.vm.provision "root_ca_crt", type: "file", source: "rootCA.crt", destination: "/home/vagrant/webapp/rootCA.crt"
+    config.vm.provision "shell", inline: RUN_WEBAPP_COMMAND
 
     # tweak vm settings to optimize for your machine:
     config.vm.provider 'virtualbox' do |vb|
